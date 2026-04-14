@@ -31,53 +31,7 @@ EarningsScribe takes a raw earnings call transcript and produces a structured fi
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    A([📄 Earnings Call Transcript]) --> B
-
-    B["🔍 RAG Retrieval
-    ───────────────────
-    BGE-small-en-v1.5 embeddings
-    ChromaDB cosine search
-    4,000 indexed transcripts"]
-
-    B -->|Top-3 similar calls| C
-    A -->|Raw transcript| C
-
-    C["📝 Prompt Construction
-    ───────────────────────
-    System role
-    + RAG context
-    + Transcript
-    + JSON output schema"]
-
-    C --> D
-
-    D["🧠 Fine-tuned Generation
-    ──────────────────────────
-    Qwen2-1.5B-Instruct
-    + LoRA Adapter  r=8  α=32
-    target: q/k/v/o_proj
-    trained on 4,000 earnings Q&A pairs"]
-
-    D --> E
-
-    E["⚙️ JSON Extraction
-    ──────────────────
-    Parse model output
-    Flatten nested objects
-    Normalize fields"]
-
-    E --> F([📊 Structured Financial Report])
-
-    style A fill:#f5f2eb,stroke:#0d0d0d,color:#0d0d0d
-    style F fill:#1a6b3a,stroke:#1a6b3a,color:#ffffff
-    style B fill:#ffffff,stroke:#c8c2b4,color:#0d0d0d
-    style C fill:#ffffff,stroke:#c8c2b4,color:#0d0d0d
-    style D fill:#0d0d0d,stroke:#0d0d0d,color:#ffffff
-    style E fill:#ffffff,stroke:#c8c2b4,color:#0d0d0d
-```
-
+![Architecture](assets/architecture.png)
 ---
 
 ## Fine-Tuning Results
