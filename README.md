@@ -2,7 +2,7 @@
 
 **Fine-tuned LLM + RAG pipeline for structured earnings call analysis**
 
-🔗 [**Live Demo**](https://jiviteshhp-earningsscribe.hf.space/ui) &nbsp;|&nbsp; 🤗 [**LoRA Adapter**](https://huggingface.co/jiviteshhp/earningsscribe-adapter) &nbsp;|&nbsp; 📓 [**Training Notebook**](notebooks/EarningsScribe_Training.ipynb)
+🔗 [**Live Demo**](https://jiviteshhp-earningsscribe.hf.space/ui) &nbsp;|&nbsp; 🤗 [**LoRA Adapter**](https://huggingface.co/jiviteshhp/earningsscribe-adapter) &nbsp;|&nbsp; 📓 [**Training Notebook**](https://colab.research.google.com/drive/12K1mnH50OwTba4yvjSrRmJNjI0nzLmM3?usp=sharing)
 
 > Fine-tuned Qwen2-1.5B on earnings call transcripts using LoRA. Improved ROUGE-L from 0.09 → 0.21 **(+128%)** and BERTScore F1 from 0.68 → 0.85 **(+25%)** over the base model on a held-out test set of 50 samples.
 
@@ -84,7 +84,7 @@ TrainingArguments(
 )
 ```
 
-See [`notebooks/EarningsScribe_Training.ipynb`](notebooks/EarningsScribe_Training.ipynb) for the full training and evaluation pipeline.
+See [**Training Notebook (Google Colab)**](https://colab.research.google.com/drive/12K1mnH50OwTba4yvjSrRmJNjI0nzLmM3?usp=sharing) for the full training and evaluation pipeline.
 
 ---
 
@@ -102,8 +102,6 @@ See [`notebooks/EarningsScribe_Training.ipynb`](notebooks/EarningsScribe_Trainin
 
 ```
 EarningsScribe/
-├── notebooks/
-│   └── EarningsScribe_Training.ipynb   # full training + eval pipeline
 ├── src/
 │   ├── download_data.py                # dataset download + processing
 │   ├── rag.py                          # ChromaDB + BGE pipeline
@@ -120,6 +118,8 @@ EarningsScribe/
         ├── validation.json             # 500 samples
         └── test.json                   # 500 samples (held-out)
 ```
+
+Training notebook: [Google Colab](https://colab.research.google.com/drive/12K1mnH50OwTba4yvjSrRmJNjI0nzLmM3?usp=sharing)
 
 ---
 
