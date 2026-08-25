@@ -1,0 +1,11 @@
+numpy==1.26.4
+chromadb==0.4.24
+peft==0.18.1
+sentence-transformers>=3.0.0
+fastapi>=0.111.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9
+huggingface_hub>=0.24.0
+tqdm>=4.66.0
+requests>=2.31.0
+datasets>=2.19.0

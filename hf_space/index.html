@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EarningsScribe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:       #0d0d0d;
+      --paper:     #f5f2eb;
+      --cream:     #ede9e0;
+      --rule:      #c8c2b4;
+      --accent:    #b5451b;
+      --accent2:   #1b5eb5;
+      --positive:  #1a6b3a;
+      --neutral:   #7a6200;
+      --negative:  #b5451b;
+      --mono:      'IBM Plex Mono', monospace;
+      --sans:      'IBM Plex Sans', sans-serif;
+      --serif:     'Playfair Display', serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── MASTHEAD ── */
+    .masthead {
+      border-bottom: 3px double var(--ink);
+      padding: 18px 48px 14px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      background: var(--paper);
+    }
+    .masthead-left { display: flex; align-items: baseline; gap: 20px; }
+    .brand {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .brand span { color: var(--accent); }
+    .tagline {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #888;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-left: 1px solid var(--rule);
+      padding-left: 16px;
+    }
+    .masthead-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #999;
+      text-align: right;
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      max-width: 960px;
+      margin: 36px auto;
+      padding: 0 24px;
+    }
+
+    /* ── INPUT CARD ── */
+    .input-card {
+      background: white;
+      border: 1px solid var(--rule);
+      border-top: 3px solid var(--ink);
+      padding: 28px 32px;
+      margin-bottom: 36px;
+    }
+    .input-card .card-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 14px 16px;
+      border: 1px solid var(--rule);
+      background: var(--cream);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--ink);
+      resize: vertical;
+    }
+    textarea:focus { outline: none; border-color: var(--ink); }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .field-group label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 6px;
+    }
+    .field-group input {
+      padding: 9px 12px;
+      border: 1px solid var(--rule);
+      background: var(--cream);
+      font-family: var(--mono);
+      font-size: 13px;
+      width: 130px;
+      color: var(--ink);
+    }
+    .field-group input:focus { outline: none; border-color: var(--ink); }
+
+    .btn-analyze {
+      padding: 10px 32px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 20px;
+    }
+    .btn-analyze:hover { background: #333; }
+    .btn-analyze:disabled { background: #aaa; cursor: not-allowed; }
+
+    .error-msg {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 10px;
+    }
+
+    /* ── LOADING ── */
+    #loading { display: none; margin: 28px 0; }
+    .loading-header {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 16px;
+    }
+    .stages { display: flex; flex-direction: column; gap: 10px; }
+    .stage {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border: 1px solid var(--rule);
+      background: white;
+      transition: all 0.3s;
+    }
+    .stage.active {
+      border-color: var(--ink);
+      background: var(--cream);
+    }
+    .stage.done {
+      border-color: var(--positive);
+      opacity: 0.6;
+    }
+    .stage-icon {
+      font-family: var(--mono);
+      font-size: 13px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .stage-text {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      flex: 1;
+    }
+    .stage-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #888;
+    }
+    .stage-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #aaa;
+      text-align: right;
+    }
+    .pulse { animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── REPORT ── */
+    #report { display: none; }
+
+    .report-masthead {
+      background: var(--ink);
+      color: white;
+      padding: 28px 32px 22px;
+    }
+    .report-eyebrow {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .report-company {
+      font-family: var(--serif);
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .report-meta {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    .sentiment-strip {
+      padding: 9px 32px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .sent-positive { background: var(--positive); color: white; }
+    .sent-neutral  { background: var(--neutral);  color: white; }
+    .sent-negative { background: var(--negative); color: white; }
+
+    .report-body {
+      background: white;
+      border: 1px solid var(--rule);
+      border-top: none;
+    }
+
+    .report-section {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--cream);
+    }
+    .report-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--cream);
+    }
+
+    .summary-text {
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--ink);
+    }
+
+    /* metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .metric-tile {
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      padding: 14px 16px;
+    }
+    .metric-value {
+      font-family: var(--mono);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .metric-name {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: #888;
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* guidance */
+    .guidance-text {
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.75;
+      border-left: 3px solid var(--accent2);
+      padding-left: 16px;
+      color: #222;
+    }
+
+    /* risks */
+    .risk-list { list-style: none; }
+    .risk-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--cream);
+      font-family: var(--sans);
+      font-size: 13px;
+    }
+    .risk-item:last-child { border-bottom: none; }
+    .risk-num {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      font-weight: 500;
+      padding-top: 2px;
+      flex-shrink: 0;
+      width: 20px;
+    }
+
+    /* RAG */
+    .rag-intro {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 16px;
+      line-height: 1.6;
+      background: var(--cream);
+      padding: 10px 14px;
+      border-left: 3px solid var(--rule);
+    }
+    .rag-cards { display: flex; gap: 12px; flex-wrap: wrap; }
+    .rag-card {
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid var(--rule);
+      padding: 14px 16px;
+      background: var(--cream);
+    }
+    .rag-rank {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: #aaa;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .rag-ticker {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .rag-date {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #888;
+      margin-top: 2px;
+    }
+    .rag-preview {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: #666;
+      margin-top: 8px;
+      line-height: 1.5;
+      border-top: 1px solid var(--rule);
+      padding-top: 8px;
+    }
+    .rag-sim {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rag-track {
+      flex: 1;
+      height: 3px;
+      background: var(--rule);
+    }
+    .rag-fill { height: 100%; background: var(--ink); }
+    .rag-pct {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #555;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-left">
+    <div class="brand">Earnings<span>Scribe</span></div>
+    <div class="tagline">AI-Powered Earnings Analysis &middot; RAG + Fine-tuned LLM</div>
+  </div>
+  <div class="masthead-right">
+    Qwen2-1.5B &middot; LoRA Fine-tuned<br>
+    ChromaDB &middot; BGE Embeddings<br>
+    <a href="https://github.com/jiviteshhp/EarningsScribe" target="_blank" style="color:var(--accent);font-family:var(--mono);font-size:10px;text-decoration:none;">GitHub &rarr;</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="input-card">
+    <div class="card-label">Earnings Call Transcript</div>
+    <textarea id="transcript">Good morning, and thank you for joining our Q3 2024 earnings call. I'm Sarah Chen, Chief Financial Officer of Meridian Technologies. With me today is our CEO, David Park.
+
+Let me begin with our headline numbers. Total revenue for Q3 came in at $4.87 billion, representing 18.3% year-over-year growth, ahead of our guidance range of $4.6 to $4.75 billion. This marks our seventh consecutive quarter of accelerating revenue growth.
+
+Gross margin expanded 220 basis points to 64.7%, driven by favorable product mix shift toward our higher-margin software and services segment, which now represents 43% of total revenue, up from 36% a year ago.
+
+Operating income reached $1.12 billion, yielding an operating margin of 23%, compared to 19.4% in Q3 2023. Adjusted EBITDA was $1.34 billion, or 27.5% of revenue. Free cash flow generation was exceptional at $980 million, up 34% year over year.
+
+Our cloud infrastructure division led growth this quarter with revenue of $2.1 billion, up 31% year over year. Enterprise software licenses grew 14% to $1.4 billion. Professional services revenue was $1.37 billion, up 8%, reflecting continued strong demand from Fortune 500 clients.
+
+On the balance sheet, we ended the quarter with $6.2 billion in cash and short-term investments. We repurchased $400 million of stock during the quarter under our existing buyback program, with $1.6 billion remaining in authorization.
+
+Turning to guidance. For Q4 2024, we expect total revenue in the range of $5.0 to $5.15 billion, representing 16 to 19% year-over-year growth. We expect Q4 gross margins of approximately 65%, and operating margins of 23.5 to 24%.
+
+For full year 2024, we are raising our revenue guidance to $18.9 to $19.1 billion from our prior range of $18.4 to $18.7 billion. Full year operating margin guidance is raised to 22.5% from 21%.
+
+Key risks we are monitoring include macroeconomic uncertainty impacting enterprise IT spending, increased competition in cloud infrastructure from hyperscaler bundling strategies, foreign exchange headwinds particularly in EMEA, and potential delays in large deal closures as customers extend evaluation cycles.
+
+Despite these headwinds, our pipeline remains robust at $14.2 billion, up 22% year over year, and our net revenue retention rate held at 118%, reflecting strong customer expansion.
+
+We will now open the call for questions.</textarea>
+
+    <div class="input-row">
+      <div class="field-group">
+        <label>Ticker</label>
+        <input type="text" id="ticker" placeholder="e.g. AAPL" value="MRID">
+      </div>
+      <button class="btn-analyze" id="btn" onclick="analyze()">Analyze Transcript</button>
+    </div>
+    <div class="error-msg" id="error"></div>
+  </div>
+
+  <!-- loading stages -->
+  <div id="loading">
+    <div class="loading-header">Processing &mdash; estimated time shown per stage</div>
+    <div class="stages">
+      <div class="stage" id="stage-0">
+        <div class="stage-icon" id="icon-0">01</div>
+        <div>
+          <div class="stage-text">Retrieving similar earnings calls</div>
+          <div class="stage-sub">Searching ChromaDB with BGE embeddings</div>
+        </div>
+        <div class="stage-time" id="time-0">~2s</div>
+      </div>
+      <div class="stage" id="stage-1">
+        <div class="stage-icon" id="icon-1">02</div>
+        <div>
+          <div class="stage-text">Building prompt with RAG context</div>
+          <div class="stage-sub">Injecting retrieved context into prompt</div>
+        </div>
+        <div class="stage-time" id="time-1">~1s</div>
+      </div>
+      <div class="stage" id="stage-2">
+        <div class="stage-icon" id="icon-2">03</div>
+        <div>
+          <div class="stage-text">Generating report with fine-tuned model</div>
+          <div class="stage-sub">Qwen2-1.5B + LoRA &mdash; 256 new tokens</div>
+        </div>
+        <div class="stage-time" id="time-2" id="gpu-time"></div>
+      </div>
+      <div class="stage" id="stage-3">
+        <div class="stage-icon" id="icon-3">04</div>
+        <div>
+          <div class="stage-text">Parsing and structuring output</div>
+          <div class="stage-sub">Extracting JSON fields from model response</div>
+        </div>
+        <div class="stage-time" id="time-3">~1s</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- report -->
+  <div id="report">
+    <div class="report-masthead">
+      <div class="report-eyebrow">Earnings Analysis Report</div>
+      <div class="report-company" id="r-company"></div>
+      <div class="report-meta" id="r-meta"></div>
+    </div>
+
+    <div class="sentiment-strip" id="r-sentiment"></div>
+
+    <div class="report-body">
+
+      <div class="report-section">
+        <div class="section-label">Executive Summary</div>
+        <div class="summary-text" id="r-summary"></div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Key Metrics</div>
+        <div class="metrics-grid" id="r-metrics"></div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Management Guidance</div>
+        <div class="guidance-text" id="r-guidance"></div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Risk Factors</div>
+        <ul class="risk-list" id="r-risks"></ul>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">RAG Context &mdash; Similar Calls Retrieved</div>
+        <div class="rag-intro">
+          The model was grounded using these historically similar earnings calls, retrieved via semantic search over a corpus of financial transcripts. Higher similarity means closer match in financial narrative and metrics discussed.
+        </div>
+        <div class="rag-cards" id="r-rag"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- about section -->
+  <div id="about" style="margin-top:48px;border-top:3px double var(--ink);padding-top:32px;">
+    <div style="font-family:var(--serif);font-size:22px;font-weight:700;margin-bottom:24px;">About This Project</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+      <div style="background:white;border:1px solid var(--rule);border-top:3px solid var(--ink);padding:20px 24px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:10px;">Fine-Tuning Results</div>
+        <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;">
+          <tr style="border-bottom:1px solid var(--cream);">
+            <td style="padding:6px 0;color:#888;">Metric</td>
+            <td style="padding:6px 0;text-align:right;color:#888;">Base</td>
+            <td style="padding:6px 0;text-align:right;color:#888;">Fine-tuned</td>
+            <td style="padding:6px 0;text-align:right;color:var(--positive);">Δ</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--cream);">
+            <td style="padding:6px 0;">ROUGE-1</td>
+            <td style="padding:6px 0;text-align:right;">0.133</td>
+            <td style="padding:6px 0;text-align:right;font-weight:500;">0.249</td>
+            <td style="padding:6px 0;text-align:right;color:var(--positive);">+87%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--cream);">
+            <td style="padding:6px 0;">ROUGE-2</td>
+            <td style="padding:6px 0;text-align:right;">0.024</td>
+            <td style="padding:6px 0;text-align:right;font-weight:500;">0.090</td>
+            <td style="padding:6px 0;text-align:right;color:var(--positive);">+267%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--cream);">
+            <td style="padding:6px 0;">ROUGE-L</td>
+            <td style="padding:6px 0;text-align:right;">0.092</td>
+            <td style="padding:6px 0;text-align:right;font-weight:500;">0.210</td>
+            <td style="padding:6px 0;text-align:right;color:var(--positive);">+128%</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;">BERTScore F1</td>
+            <td style="padding:6px 0;text-align:right;">0.680</td>
+            <td style="padding:6px 0;text-align:right;font-weight:500;">0.848</td>
+            <td style="padding:6px 0;text-align:right;color:var(--positive);">+25%</td>
+          </tr>
+        </table>
+        <div style="font-family:var(--mono);font-size:9px;color:#aaa;margin-top:8px;">50 held-out test samples · lamini/earnings-calls-qa</div>
+      </div>
+
+      <div style="background:white;border:1px solid var(--rule);border-top:3px solid var(--ink);padding:20px 24px;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:10px;">Architecture</div>
+        <div style="font-family:var(--sans);font-size:13px;line-height:1.8;color:#444;">
+          <div style="margin-bottom:6px;">① <strong>Input</strong> — Raw earnings call transcript</div>
+          <div style="margin-bottom:6px;padding-left:14px;border-left:2px solid var(--rule);">↓ BGE-small-en-v1.5 embeddings</div>
+          <div style="margin-bottom:6px;">② <strong>RAG Retrieval</strong> — ChromaDB cosine search over 4,000 indexed transcripts, top-3 returned</div>
+          <div style="margin-bottom:6px;padding-left:14px;border-left:2px solid var(--rule);">↓ Context injection into prompt</div>
+          <div style="margin-bottom:6px;">③ <strong>Generation</strong> — Fine-tuned Qwen2-1.5B + LoRA (r=8, α=32)</div>
+          <div style="margin-bottom:6px;padding-left:14px;border-left:2px solid var(--rule);">↓ JSON extraction + normalization</div>
+          <div>④ <strong>Output</strong> — Structured financial report</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:white;border:1px solid var(--rule);padding:20px 24px;margin-bottom:24px;">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:12px;">Technical Stack</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">Qwen2-1.5B-Instruct</span>
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">LoRA r=8 α=32</span>
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">PEFT 0.18.1</span>
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">ChromaDB 0.4.24</span>
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">BGE-small-en-v1.5</span>
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">FastAPI</span>
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">HuggingFace Spaces</span>
+        <span style="font-family:var(--mono);font-size:11px;background:var(--cream);border:1px solid var(--rule);padding:4px 10px;">Docker</span>
+      </div>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:11px;color:#888;text-align:center;padding:16px 0;border-top:1px solid var(--rule);">
+      Built by Jivitesh &nbsp;&middot;&nbsp;
+      <a href="https://github.com/jiviteshhp/EarningsScribe" target="_blank" style="color:var(--accent);text-decoration:none;">GitHub</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://huggingface.co/jiviteshhp/earningsscribe-adapter" target="_blank" style="color:var(--accent2);text-decoration:none;">Model Adapter</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const IS_GPU = true;
+
+  const STAGE_DURATIONS = IS_GPU
+    ? [2000, 500, 10000, 500]   // GPU: generation ~10s
+    : [2000, 500, 90000, 500];  // CPU: generation ~90s
+
+  const STAGE_LABELS = IS_GPU
+    ? ["~2s", "~1s", "~10s", "~1s"]
+    : ["~2s", "~1s", "~90s", "~1s"];
+
+  let stageTimers = [];
+
+  function setStage(idx, state) {
+    const el   = document.getElementById(`stage-${idx}`);
+    const icon = document.getElementById(`icon-${idx}`);
+    el.className = "stage " + state;
+    if (state === "active") {
+      icon.className = "stage-icon pulse";
+      icon.textContent = "...";
+    } else if (state === "done") {
+      icon.className = "stage-icon";
+      icon.textContent = "OK";
+    } else {
+      icon.className = "stage-icon";
+      icon.textContent = String(idx + 1).padStart(2, "0");
+    }
+  }
+
+  function resetStages() {
+    for (let i = 0; i < 4; i++) {
+      setStage(i, "");
+      document.getElementById(`time-${i}`).textContent = STAGE_LABELS[i];
+    }
+  }
+
+  // simulate stage progression while waiting for API
+  function runStageAnimation() {
+    resetStages();
+    let elapsed = 0;
+    const cumulative = [0];
+    STAGE_DURATIONS.forEach((d, i) => cumulative.push(cumulative[i] + d));
+
+    for (let i = 0; i < 4; i++) {
+      const startT = setTimeout(() => setStage(i, "active"), cumulative[i]);
+      const endT   = setTimeout(() => setStage(i, "done"),   cumulative[i + 1] - 200);
+      stageTimers.push(startT, endT);
+    }
+  }
+
+  function clearStageTimers() {
+    stageTimers.forEach(t => clearTimeout(t));
+    stageTimers = [];
+    for (let i = 0; i < 4; i++) setStage(i, "done");
+  }
+
+  function extractString(val) {
+    if (!val) return "—";
+    if (typeof val === "string") return val;
+    if (val.description) return val.description;
+    if (val.overview)    return val.overview;
+    if (val.summary)     return val.summary;
+    return JSON.stringify(val);
+  }
+
+  async function analyze() {
+    const transcript = document.getElementById("transcript").value.trim();
+    const ticker     = document.getElementById("ticker").value.trim() || "UNKNOWN";
+    const btn        = document.getElementById("btn");
+    const error      = document.getElementById("error");
+
+    if (!transcript) { error.textContent = "Please enter a transcript."; return; }
+
+    btn.disabled      = true;
+    error.textContent = "";
+    document.getElementById("report").style.display  = "none";
+    document.getElementById("loading").style.display = "block";
+
+    runStageAnimation();
+
+    try {
+      const res = await fetch(window.location.origin + "/generate", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ transcript, ticker })
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail || "Server error " + res.status);
+      }
+      const data = await res.json();
+      clearStageTimers();
+      document.getElementById("loading").style.display = "none";
+      renderReport(data, ticker);
+    } catch(e) {
+      clearStageTimers();
+      document.getElementById("loading").style.display = "none";
+      error.textContent = "Error: " + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderReport(data, ticker) {
+    const r = data.report;
+
+    // header
+    document.getElementById("r-company").textContent = ticker.toUpperCase();
+    document.getElementById("r-meta").textContent =
+      "Generated " + new Date().toLocaleDateString("en-US",
+        { year:"numeric", month:"long", day:"numeric" }) +
+      "  |  Model: Qwen2-1.5B + LoRA  |  RAG: ChromaDB + BGE";
+
+    // sentiment
+    const raw  = typeof r.sentiment === "string" ? r.sentiment.toLowerCase() : "neutral";
+    const sent = raw.includes("pos") ? "positive" : raw.includes("neg") ? "negative" : "neutral";
+    const bar  = document.getElementById("r-sentiment");
+    bar.textContent = "Overall Sentiment: " + sent.toUpperCase();
+    bar.className   = "sentiment-strip sent-" + sent;
+
+    // summary
+    document.getElementById("r-summary").textContent = extractString(r.company_summary);
+
+    // metrics
+    const metricsEl = document.getElementById("r-metrics");
+    metricsEl.innerHTML = "";
+    const metrics = Array.isArray(r.key_metrics) ? r.key_metrics : [];
+    if (!metrics.length) {
+      metricsEl.innerHTML = "<p style='color:#aaa;font-size:12px;font-family:var(--mono)'>No metrics extracted</p>";
+    } else {
+      metrics.forEach(m => {
+        // normalize: m could still be a raw JSON string if server didn't flatten it
+        let raw = "";
+        if (typeof m === "string" && m.trim().startsWith("{")) {
+          try {
+            const obj = JSON.parse(m);
+            const label = obj.metric_type || obj.name || obj.label || "";
+            const val   = obj.amount || obj.value || "";
+            raw = label && val ? `${label}: ${val}` : Object.values(obj).join(": ");
+          } catch { raw = m; }
+        } else if (typeof m === "string") {
+          raw = m;
+        } else if (typeof m === "object" && m !== null) {
+          const label = m.metric_type || m.name || m.label || "";
+          const val   = m.amount || m.value || "";
+          raw = label && val ? `${label}: ${val}` : Object.values(m).join(": ");
+        } else {
+          raw = String(m);
+        }
+        const parts  = raw.split(":");
+        const name   = parts[0] ? parts[0].trim() : raw;
+        const value  = parts[1] ? parts[1].trim() : "";
+        const tile   = document.createElement("div");
+        tile.className = "metric-tile";
+        tile.innerHTML = `<div class="metric-value">${value || "—"}</div>
+                          <div class="metric-name">${name}</div>`;
+        metricsEl.appendChild(tile);
+      });
+    }
+
+    // guidance
+    document.getElementById("r-guidance").textContent = extractString(r.guidance);
+
+    // risks
+    const risksEl = document.getElementById("r-risks");
+    risksEl.innerHTML = "";
+    const risks = Array.isArray(r.risks) ? r.risks
+                : typeof r.risks === "string" ? [r.risks] : [];
+    if (!risks.length) {
+      risksEl.innerHTML = "<li style='color:#aaa;font-size:12px'>None identified</li>";
+    } else {
+      risks.forEach((risk, i) => {
+        const li  = document.createElement("li");
+        li.className = "risk-item";
+        let txt = "";
+        if (typeof risk === "string" && risk.trim().startsWith("{")) {
+          try {
+            const obj = JSON.parse(risk);
+            txt = obj.description || obj.risk || Object.values(obj).join(": ");
+          } catch { txt = risk; }
+        } else if (typeof risk === "string") {
+          txt = risk;
+        } else if (typeof risk === "object" && risk !== null) {
+          txt = risk.description || risk.name || Object.values(risk).join(": ");
+        } else {
+          txt = String(risk);
+        }
+        li.innerHTML = `<span class="risk-num">R${i+1}</span>${txt}`;
+        risksEl.appendChild(li);
+      });
+    }
+
+    // RAG
+    const ragEl = document.getElementById("r-rag");
+    ragEl.innerHTML = "";
+    const contexts = data.retrieved_context || [];
+    if (!contexts.length) {
+      ragEl.innerHTML = "<p style='color:#aaa;font-size:12px;font-family:var(--mono)'>No context retrieved</p>";
+    } else {
+      contexts.forEach((c, i) => {
+        const card = document.createElement("div");
+        card.className = "rag-card";
+        const pct = Math.round(c.score * 100);
+        const preview = c.preview
+          ? c.preview.slice(0, 120) + "..."
+          : "Transcript excerpt used as generation context.";
+        card.innerHTML = `
+          <div class="rag-rank">Match #${i+1}</div>
+          <div class="rag-ticker">${c.ticker || "—"}</div>
+          <div class="rag-date">${c.date || "Date unknown"}</div>
+          <div class="rag-preview">${preview}</div>
+          <div class="rag-sim">
+            <div class="rag-track"><div class="rag-fill" style="width:${pct}%"></div></div>
+            <div class="rag-pct">${pct}% similar</div>
+          </div>`;
+        ragEl.appendChild(card);
+      });
+    }
+
+    document.getElementById("report").style.display = "block";
+    document.getElementById("report").scrollIntoView({ behavior: "smooth" });
+  }
+</script>
+</body>
+</html>
